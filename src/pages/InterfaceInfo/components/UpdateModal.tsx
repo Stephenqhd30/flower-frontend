@@ -19,7 +19,7 @@ const UpdateModal: React.FC<Props> = (props) => {
     formRef?.current?.setFieldsValue(values);
   }, [values]);
   return (
-    <Modal visible={visible} footer={null} onCancel={() => onCancel?.()}>
+    <Modal open={visible} footer={null} onCancel={() => onCancel?.()}>
       <ProTable
         type="form"
         columns={columns}

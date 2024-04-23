@@ -16,13 +16,13 @@ const loginPath = '/user/login';
  * */
 export async function getInitialState(): Promise<InitialState> {
   const state: InitialState = {
-    loginUser: undefined,
+    currentUser: undefined,
   };
   const fetchUserInfo = async () => {
     try {
       const res = await getLoginUserUsingGet();
       if (res?.data) {
-        state.loginUser = res?.data;
+        state.currentUser = res?.data;
       }
     } catch (error) {
       history.push(loginPath);
@@ -38,20 +38,20 @@ export const layout: RunTimeLayoutConfig = ({initialState, setInitialState}) => 
   return {
     actionsRender: () => [<Question key="doc" />],
     avatarProps: {
-      src: initialState?.loginUser?.userAvatar,
+      src: initialState?.currentUser?.userAvatar,
       title: <AvatarName />,
       render: (_, avatarChildren) => {
         return <AvatarDropdown>{avatarChildren}</AvatarDropdown>;
       },
     },
     waterMarkProps: {
-      content: initialState?.loginUser?.userName,
+      content: initialState?.currentUser?.userName,
     },
     footerRender: () => <Footer />,
     onPageChange: () => {
       const { location } = history;
       // 如果没有登录，重定向到 login
-      if (!initialState?.loginUser && location.pathname !== loginPath) {
+      if (!initialState?.currentUser && location.pathname !== loginPath) {
         history.push(loginPath);
       }
     },

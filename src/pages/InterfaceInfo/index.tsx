@@ -13,7 +13,8 @@ import UpdateModal from './components/UpdateModal';
 import {
   addInterfaceInfoUsingPost,
   deleteInterfaceInfoUsingPost,
-  listInterfaceInfoByPageUsingPost, updateInterfaceInfoUsingPost,
+  listInterfaceInfoByPageUsingPost,
+  updateInterfaceInfoUsingPost,
 } from '@/services/StephenAPI-backend/interfaceInfoController';
 import CreateModal from '@/pages/InterfaceInfo/components/CreateModal';
 
@@ -32,8 +33,7 @@ const TableList: React.FC = () => {
   const [selectedRowsState, setSelectedRows] = useState<API.RuleListItem[]>([]);
 
   /**
-   * @en-US Add node
-   * @zh-CN 添加节点
+   * 添加节点
    * @param fields
    */
   const handleAdd = async (fields: API.InterfaceInfo) => {
@@ -57,8 +57,7 @@ const TableList: React.FC = () => {
   };
 
   /**
-   * @en-US Update node
-   * @zh-CN 更新节点
+   * 更新节点
    *
    * @param fields
    */
@@ -81,8 +80,7 @@ const TableList: React.FC = () => {
   };
 
   /**
-   *  Delete node
-   * @zh-CN 删除节点
+   *  删除节点
    *
    * @param record
    */
@@ -95,7 +93,7 @@ const TableList: React.FC = () => {
       });
       hide();
       message.success('删除成功');
-      actionRef?.current?.reload()
+      actionRef?.current?.reload();
       return true;
     } catch (error: any) {
       hide();
@@ -121,8 +119,8 @@ const TableList: React.FC = () => {
         rules: [
           {
             required: true,
-          }
-        ]
+          },
+        ],
       },
     },
     {
@@ -137,10 +135,10 @@ const TableList: React.FC = () => {
       formItemProps: {
         rules: [
           {
-            required: true
-          }
-        ]
-      }
+            required: true,
+          },
+        ],
+      },
     },
     {
       title: '请求方法',
@@ -149,20 +147,20 @@ const TableList: React.FC = () => {
       formItemProps: {
         rules: [
           {
-            required: true
-          }
-        ]
-      }
+            required: true,
+          },
+        ],
+      },
     },
     {
       title: '请求头',
       dataIndex: 'requestHeader',
-      valueType: 'textarea'
+      valueType: 'textarea',
     },
     {
       title: '响应头',
       dataIndex: 'responseHeader',
-      valueType: 'textarea'
+      valueType: 'textarea',
     },
     {
       title: '状态',
@@ -280,15 +278,16 @@ const TableList: React.FC = () => {
             </div>
           }
         >
-          {/*<Button*/}
-          {/*  onClick={async () => {*/}
-          {/*    await handleRemove(currentRow);*/}
-          {/*    setSelectedRows([]);*/}
-          {/*    actionRef.current?.reloadAndRest?.();*/}
-          {/*  }}*/}
-          {/*>*/}
-          {/*  批量删除*/}
-          {/*</Button>*/}
+          <Button
+            onClick={async () => {
+              // @ts-ignore
+              await handleRemove(currentRow);
+              setSelectedRows([]);
+              actionRef.current?.reloadAndRest?.();
+            }}
+          >
+            批量删除
+          </Button>
           <Button type="primary">批量审批</Button>
         </FooterToolbar>
       )}

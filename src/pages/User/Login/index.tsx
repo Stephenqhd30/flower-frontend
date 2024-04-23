@@ -78,7 +78,7 @@ const Login: React.FC = () => {
         history.push(urlParams.get('redirect') || '/');
         // 设置当前的用户登录到全局的状态中
         setInitialState({
-          loginUser: res.data,
+          currentUser: res.data,
         });
         return;
       }
