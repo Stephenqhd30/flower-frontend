@@ -1,49 +1,29 @@
-import { outLogin } from '@/services/ant-design-pro/api';
 import { LogoutOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
-import { history, useModel } from '@umijs/max';
-import { Spin } from 'antd';
-import { createStyles } from 'antd-style';
+import { history, Link, useModel } from '@umijs/max';
+import { Avatar, Button, Space } from 'antd';
 import { stringify } from 'querystring';
 import type { MenuInfo } from 'rc-menu/lib/interface';
 import React, { useCallback } from 'react';
 import { flushSync } from 'react-dom';
 import HeaderDropdown from '../HeaderDropdown';
+import {userLogoutUsingPost} from '@/services/StephenAPI-backend/userController';
 
 export type GlobalHeaderRightProps = {
   menu?: boolean;
-  children?: React.ReactNode;
 };
 
 export const AvatarName = () => {
   const { initialState } = useModel('@@initialState');
-  const { loginUser } = initialState || {};
-  return <span className="anticon">{loginUser?.userName}</span>;
+  const { currentUser } = initialState || {};
+  return <span className="anticon">{currentUser?.userName}</span>;
 };
 
-const useStyles = createStyles(({ token }) => {
-  return {
-    action: {
-      display: 'flex',
-      height: '48px',
-      marginLeft: 'auto',
-      overflow: 'hidden',
-      alignItems: 'center',
-      padding: '0 8px',
-      cursor: 'pointer',
-      borderRadius: token.borderRadius,
-      '&:hover': {
-        backgroundColor: token.colorBgTextHover,
-      },
-    },
-  };
-});
-
-export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu, children }) => {
+export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu }) => {
   /**
    * 退出登录，并且将当前的 url 保存
    */
   const loginOut = async () => {
-    await outLogin();
+    await userLogoutUsingPost();
     const { search, pathname } = window.location;
     const urlParams = new URL(window.location.href).searchParams;
     /** 此方法会跳转到 redirect 参数所在的位置 */
@@ -58,7 +38,6 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu, childre
       });
     }
   };
-  const { styles } = useStyles();
 
   const { initialState, setInitialState } = useModel('@@initialState');
 
@@ -76,46 +55,35 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu, childre
     },
     [setInitialState],
   );
+  // 获取当前登录用户的信息
+  const { currentUser } = initialState || {};
 
-  const loading = (
-    <span className={styles.action}>
-      <Spin
-        size="small"
-        style={{
-          marginLeft: 8,
-          marginRight: 8,
-        }}
-      />
-    </span>
-  );
-
-  if (!initialState) {
-    return loading;
-  }
-
-  const { loginUser } = initialState;
-
-  if (!loginUser || !loginUser.userName) {
-    return loading;
+  // 如果用户没有登录展示一个登录框
+  if (!currentUser) {
+    return (
+      <Link to={'/user/login'}>
+        <Button type="primary">登录</Button>
+      </Link>
+    );
   }
 
   const menuItems = [
     ...(menu
       ? [
-          {
-            key: 'center',
-            icon: <UserOutlined />,
-            label: '个人中心',
-          },
-          {
-            key: 'settings',
-            icon: <SettingOutlined />,
-            label: '个人设置',
-          },
-          {
-            type: 'divider' as const,
-          },
-        ]
+        {
+          key: 'center',
+          icon: <UserOutlined />,
+          label: '个人中心',
+        },
+        {
+          key: 'settings',
+          icon: <SettingOutlined />,
+          label: '个人设置',
+        },
+        {
+          type: 'divider' as const,
+        },
+      ]
       : []),
     {
       key: 'logout',
@@ -132,7 +100,14 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu, childre
         items: menuItems,
       }}
     >
-      {children}
+      <Space>
+        {currentUser?.userAvatar ? (
+          <Avatar src={currentUser?.userAvatar} />
+        ) : (
+          <Avatar icon={<UserOutlined />} />
+        )}
+        <span>{currentUser?.userName}</span>
+      </Space>
     </HeaderDropdown>
   );
 };

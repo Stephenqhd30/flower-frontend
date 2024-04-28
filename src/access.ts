@@ -1,4 +1,3 @@
-import {InitialState} from '@/typings';
 
 /**
  * @see https://umijs.org/docs/max/access#access

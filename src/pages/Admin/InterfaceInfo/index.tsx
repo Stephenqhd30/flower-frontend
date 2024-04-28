@@ -7,84 +7,29 @@ import {
   ProTable,
 } from '@ant-design/pro-components';
 import '@umijs/max';
-import { Button, Drawer, message } from 'antd';
+import { Button, Drawer, message, Popconfirm, Space, Typography } from 'antd';
 import React, { useRef, useState } from 'react';
 import UpdateModal from './components/UpdateModal';
 import {
-  addInterfaceInfoUsingPost,
   deleteInterfaceInfoUsingPost,
   listInterfaceInfoByPageUsingPost,
-  updateInterfaceInfoUsingPost,
 } from '@/services/StephenAPI-backend/interfaceInfoController';
-import CreateModal from '@/pages/InterfaceInfo/components/CreateModal';
+import CreateModal from '@/pages/Admin/InterfaceInfo/components/CreateModal';
 
 const TableList: React.FC = () => {
-  /**
-   * 新建窗口的弹窗
-   *  */
-  const [createModalVisible, handleModalVisible] = useState<boolean>(false);
-  /**
-   * 更新窗口的弹窗
-   * */
-  const [updateModalOpen, handleUpdateModalOpen] = useState<boolean>(false);
+  const [createModalVisible, setCreateModalVisible] = useState<boolean>(false);
+  const [updateModalVisible, setUpdateModalVisible] = useState<boolean>(false);
   const [showDetail, setShowDetail] = useState<boolean>(false);
   const actionRef = useRef<ActionType>();
   const [currentRow, setCurrentRow] = useState<API.RuleListItem>();
-  const [selectedRowsState, setSelectedRows] = useState<API.RuleListItem[]>([]);
-
-  /**
-   * 添加节点
-   * @param fields
-   */
-  const handleAdd = async (fields: API.InterfaceInfo) => {
-    const hide = message.loading('正在添加');
-    try {
-      await addInterfaceInfoUsingPost({
-        ...fields,
-      });
-      hide();
-      message.success('创建成功');
-      // 关闭Modal框
-      handleModalVisible(false);
-      // 更新列表
-      actionRef.current?.reload();
-      return true;
-    } catch (error: any) {
-      hide();
-      message.error('创建失败，请重新尝试!', error.message);
-      return false;
-    }
-  };
-
-  /**
-   * 更新节点
-   *
-   * @param fields
-   */
-  const handleUpdate = async (fields: API.InterfaceInfo) => {
-    const hide = message.loading('修改中');
-    try {
-      await updateInterfaceInfoUsingPost({
-        ...fields,
-      });
-      hide();
-      message.success('修改成功');
-      // 更新列表
-      actionRef.current?.reload();
-      return true;
-    } catch (error: any) {
-      hide();
-      message.error('修改失败', error.message);
-      return false;
-    }
-  };
+  const [selectedRowsState, setSelectedRows] = useState<API.InterfaceInfo[]>([]);
 
   /**
    *  删除节点
    *
    * @param record
    */
-  const handleRemove = async (record: API.InterfaceInfo) => {
+  const handleDelete = async (record: API.InterfaceInfo) => {
     const hide = message.loading('正在删除');
     if (!record) return true;
     try {
@@ -110,6 +55,8 @@ const TableList: React.FC = () => {
     {
       title: 'id',
       dataIndex: 'id',
+      valueType: 'text',
+      hideInForm: true,
     },
     {
       title: '接口名称',
@@ -165,15 +112,14 @@ const TableList: React.FC = () => {
     {
       title: '状态',
       dataIndex: 'status',
-      hideInForm: true,
       valueEnum: {
         0: {
           text: '关闭',
-          status: '0'
+          status: 'Error',
         },
         1: {
           text: '运行中',
-          status: '1'
+          status: 'Success'
         },
       },
     },
@@ -181,37 +127,56 @@ const TableList: React.FC = () => {
       title: '创建时间',
       dataIndex: 'createTime',
       valueType: 'dateTime',
-      hideInForm: true
+      hideInForm: true,
+      hideInSearch: true,
     },
     {
       title: '更新时间',
       dataIndex: 'updateTime',
       valueType: 'dateTime',
-      hideInForm: true
+      hideInForm: true,
+      hideInSearch: true,
     },
     {
       title: '操作',
       dataIndex: 'option',
       valueType: 'option',
-      render: (_, record) => [
-        <a
-          key="config"
-          onClick={() => {
-            handleUpdateModalOpen(true);
-            setCurrentRow(record);
-          }}
-        >
-          修改
-        </a>,
-        <a
-          key="delete"
-          onClick={() => {
-            handleRemove(record);
-          }}
-        >
-          删除
-        </a>,
-      ],
+      render: (_, record) => (
+        <Space size={'middle'}>
+          <Typography.Link
+            key="update"
+            onClick={() => {
+              setUpdateModalVisible(true);
+              setCurrentRow(record);
+              actionRef.current?.reload();
+            }}
+          >
+            修改
+          </Typography.Link>
+          {/*删除表单用户的PopConfirm框*/}
+          <Popconfirm
+            title="确定删除？"
+            description="删除后将无法恢复?"
+            okText="确定"
+            cancelText="取消"
+            onConfirm={async () => {
+              await handleDelete(record);
+              setCurrentRow(undefined);
+              actionRef.current?.reload();
+            }}
+          >
+            <Typography.Link
+              key={'delete'}
+              type={'danger'}
+              onClick={() => {
+                setCurrentRow(record);
+              }}
+            >
+              删除
+            </Typography.Link>
+          </Popconfirm>
+        </Space>
+      )
     },
   ];
   return (
@@ -228,7 +193,7 @@ const TableList: React.FC = () => {
             type="primary"
             key="primary"
             onClick={() => {
-              handleModalVisible(true);
+              setCreateModalVisible(true);
             }}
           >
             <PlusOutlined /> 新建
@@ -253,11 +218,6 @@ const TableList: React.FC = () => {
           }
         }}
         columns={columns}
-        rowSelection={{
-          onChange: (_, selectedRows) => {
-            setSelectedRows(selectedRows);
-          },
-        }}
       />
       {selectedRowsState?.length > 0 && (
         <FooterToolbar
@@ -272,16 +232,13 @@ const TableList: React.FC = () => {
                 {selectedRowsState.length}
               </a>{' '}
               项 &nbsp;&nbsp;
-              <span>
-                服务调用次数总计 {selectedRowsState.reduce((pre, item) => pre + item.callNo!, 0)} 万
-              </span>
             </div>
           }
         >
           <Button
             onClick={async () => {
               // @ts-ignore
-              await handleRemove(currentRow);
+              await handleDelete(currentRow);
               setSelectedRows([]);
               actionRef.current?.reloadAndRest?.();
             }}
@@ -291,35 +248,35 @@ const TableList: React.FC = () => {
           <Button type="primary">批量审批</Button>
         </FooterToolbar>
       )}
-      {/*新增接口模态框*/}
-      <CreateModal
-        columns={columns}
-        onCancel={() => {
-          handleModalVisible(false);
-        }}
-        onSubmit={(values) => handleAdd(values)}
-        visible={createModalVisible}
-      />
+      {/*新建表单的Modal框*/}
+      {createModalVisible && (
+        <CreateModal
+          onCancel={() => {
+            setCreateModalVisible(false);
+          }}
+          onSubmit={async () => {
+            setCreateModalVisible(false);
+            actionRef.current?.reload();
+          }}
+          visible={createModalVisible}
+          columns={columns}
+        />
+      )}
       {/*更新模态框*/}
       <UpdateModal
         columns={columns}
-        onSubmit={async (value) => {
-          const success = await handleUpdate(value);
-          if (success) {
-            handleUpdateModalOpen(false);
-            setCurrentRow(undefined);
-            if (actionRef.current) {
-              actionRef.current.reload();
-            }
-          }
+        onSubmit={async () => {
+          setUpdateModalVisible(false);
+          setCurrentRow(undefined);
+          actionRef?.current?.reload();
         }}
         onCancel={() => {
-          handleUpdateModalOpen(false);
+          setUpdateModalVisible(false);
           if (!showDetail) {
             setCurrentRow(undefined);
           }
         }}
-        visible={updateModalOpen}
+        visible={updateModalVisible}
         values={currentRow || {}}
       />
 

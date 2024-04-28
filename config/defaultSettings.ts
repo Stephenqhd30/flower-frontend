@@ -1,4 +1,4 @@
-import { ProLayoutProps } from '@ant-design/pro-components';
+import {ProLayoutProps} from '@ant-design/pro-components';
 
 /**
  * @name
@@ -15,7 +15,9 @@ const Settings: ProLayoutProps & {
   fixedHeader: true,
   fixSiderbar: true,
   colorWeak: false,
-  title: '花海',
+  splitMenus: false,
+  siderMenuType: 'sub',
+  title: '花海API接口开放平台',
   pwa: true,
   logo: 'https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg',
   iconfontUrl: '',

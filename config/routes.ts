@@ -12,7 +12,8 @@ export default [
     icon: 'crown',
     access: 'canAdmin',
     routes: [
-      { name: '接口管理', icon: 'table', path: '/admin/interface-info', component: './InterfaceInfo' },
+      { name: '用户管理', icon: 'table', path: '/admin/userinfo', component: './Admin/UserInfo' },
+      { name: '接口管理', icon: 'table', path: '/admin/interface-info', component: './Admin/InterfaceInfo' },
     ],
   },
   { path: '*', layout: false, component: './404' },

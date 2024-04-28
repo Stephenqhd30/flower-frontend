@@ -1,51 +1,43 @@
-import { AvatarDropdown, AvatarName, Footer, Question } from '@/components';
-import { LinkOutlined } from '@ant-design/icons';
-import { SettingDrawer } from '@ant-design/pro-components';
+import { AvatarDropdown, Footer } from '@/components';
+
 import type { RunTimeLayoutConfig } from '@umijs/max';
-import { history, Link } from '@umijs/max';
+import { history } from '@umijs/max';
 import { requestConfig } from './requestConfig';
 import React from 'react';
-import { InitialState } from '@/typings';
 import { getLoginUserUsingGet } from '@/services/StephenAPI-backend/userController';
+import Settings from '../config/defaultSettings';
 
-const isDev = process.env.NODE_ENV === 'development';
 const loginPath = '/user/login';
 
 /**
  * @see  https://umijs.org/zh-CN/plugins/plugin-initial-state
  * */
 export async function getInitialState(): Promise<InitialState> {
-  const state: InitialState = {
+  const initialState = {
     currentUser: undefined,
   };
-  const fetchUserInfo = async () => {
-    try {
+  // 如果不是登录页面，执行
+  const { location } = history;
+  try {
+    if (location.pathname !== loginPath) {
       const res = await getLoginUserUsingGet();
-      if (res?.data) {
-        state.currentUser = res?.data;
+      if (res.code === 0) {
+        initialState.currentUser = res.data as any;
       }
-    } catch (error) {
-      history.push(loginPath);
     }
-    return state;
-  };
-  // 调用 fetchUserInfo 并返回其结果
-  return await fetchUserInfo();
+  } catch (error: any) {}
+  // 返回一个 Promise<InitialState> 类型的值
+  return initialState;
 }
 
 // ProLayout 支持的api https://procomponents.ant.design/components/layout
-export const layout: RunTimeLayoutConfig = ({initialState, setInitialState}) => {
+// @ts-ignore
+export const layout: RunTimeLayoutConfig = ({initialState}) => {
   return {
-    actionsRender: () => [<Question key="doc" />],
     avatarProps: {
-      src: initialState?.currentUser?.userAvatar,
-      title: <AvatarName />,
-      render: (_, avatarChildren) => {
-        return <AvatarDropdown>{avatarChildren}</AvatarDropdown>;
+      render: () => {
+        return <AvatarDropdown />;
       },
-    },
-    waterMarkProps: {
-      content: initialState?.currentUser?.userName,
     },
     footerRender: () => <Footer />,
     onPageChange: () => {
@@ -55,58 +47,10 @@ export const layout: RunTimeLayoutConfig = ({initialState, setInitialState}) => 
         history.push(loginPath);
       }
     },
-    bgLayoutImgList: [
-      {
-        src: 'https://mdn.alipayobjects.com/yuyan_qk0oxh/afts/img/D2LWSqNny4sAAAAAAAAAAAAAFl94AQBr',
-        left: 85,
-        bottom: 100,
-        height: '303px',
-      },
-      {
-        src: 'https://mdn.alipayobjects.com/yuyan_qk0oxh/afts/img/C2TWRpJpiC0AAAAAAAAAAAAAFl94AQBr',
-        bottom: -68,
-        right: -45,
-        height: '303px',
-      },
-      {
-        src: 'https://mdn.alipayobjects.com/yuyan_qk0oxh/afts/img/F6vSTbj8KpYAAAAAAAAAAAAAFl94AQBr',
-        bottom: 0,
-        left: 0,
-        width: '331px',
-      },
-    ],
-    links: isDev
-      ? [
-          <Link key="openapi" to="/umi/plugin/openapi" target="_blank">
-            <LinkOutlined />
-            <span>OpenAPI 文档</span>
-          </Link>,
-        ]
-      : [],
     menuHeaderRender: undefined,
     // 自定义 403 页面
     // unAccessible: <div>unAccessible</div>,
-    // 增加一个 loading 的状态
-    childrenRender: (children) => {
-      // if (initialState?.loading) return <PageLoading />;
-      return (
-        <>
-          {children}
-          {isDev && (
-            <SettingDrawer
-              disableUrlParams
-              enableDarkTheme
-              onSettingChange={(settings) => {
-                setInitialState((preInitialState) => ({
-                  ...preInitialState,
-                  settings,
-                }));
-              }}
-            />
-          )}
-        </>
-      );
-    },
+    ...Settings,
   };
 };
 

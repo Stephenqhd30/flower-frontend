@@ -1,13 +1,13 @@
 import { Footer } from '@/components';
-import { LockOutlined, UserOutlined } from '@ant-design/icons';
-import { LoginForm, ProFormCheckbox, ProFormText } from '@ant-design/pro-components';
+import { LoginFormPage } from '@ant-design/pro-components';
 import { Helmet, history, useModel } from '@umijs/max';
-import { Alert, message, Tabs } from 'antd';
-import Settings from '../../../../config/defaultSettings';
-import React, { useState } from 'react';
+import { message, Tabs } from 'antd';
+import React, { useEffect, useState } from 'react';
 import { createStyles } from 'antd-style';
-import { userLoginUsingPost } from '@/services/StephenAPI-backend/userController';
-import { STEPHEN_SUBTITLE, STEPHEN_TITLE } from '@/constants';
+import { BACKGROUND_IMAGE, STEPHEN_SUBTITLE, STEPHEN_TITLE } from '@/constants';
+import RegisterPage from '@/pages/User/Login/components/RegisterPage';
+import LoginPage from '@/pages/User/Login/components/LoginPage';
+import {userLoginUsingPost, userRegisterUsingPost} from '@/services/StephenAPI-backend/userController';
 
 const useStyles = createStyles(({ token }) => {
   return {
@@ -22,17 +22,6 @@ const useStyles = createStyles(({ token }) => {
         color: token.colorPrimaryActive,
       },
     },
-    lang: {
-      width: 42,
-      height: 42,
-      lineHeight: '42px',
-      position: 'fixed',
-      right: 16,
-      borderRadius: token.borderRadius,
-      ':hover': {
-        backgroundColor: token.colorBgTextHover,
-      },
-    },
     container: {
       display: 'flex',
       flexDirection: 'column',
@@ -44,67 +33,81 @@ const useStyles = createStyles(({ token }) => {
     },
   };
 });
-const LoginMessage: React.FC<{
-  content: string;
-}> = ({ content }) => {
-  return (
-    <Alert
-      style={{
-        marginBottom: 24,
-      }}
-      message={content}
-      type="error"
-      showIcon
-    />
-  );
-};
-
 
 const Login: React.FC = () => {
-  const [type, setType] = useState<string>('account');
-  const { setInitialState } = useModel('@@initialState');
+  const [type, setType] = useState<string>('login');
+  const { initialState, setInitialState } = useModel('@@initialState');
+  const [redirected, setRedirected] = useState(false); // 控制重定向状态
   const { styles } = useStyles();
-  const handleSubmit = async (values: API.UserLoginRequest) => {
+  // 用户登录
+  const handleLoginSubmit = async (values: API.UserLoginRequest) => {
     try {
       // 登录
       const res = await userLoginUsingPost({
         ...values,
       });
-      if (res?.data) {
-        const defaultLoginSuccessMessage = '登录成功！';
-        message.success(defaultLoginSuccessMessage);
 
-        const urlParams = new URL(window.location.href).searchParams;
-        history.push(urlParams.get('redirect') || '/');
-        // 设置当前的用户登录到全局的状态中
-        setInitialState({
-          currentUser: res.data,
-        });
-        return;
-      }
-    } catch (error) {
-      const defaultLoginFailureMessage = '登录失败，请重试！';
+      const defaultLoginSuccessMessage = '登录成功！';
+      message.success(defaultLoginSuccessMessage);
+      // 保存已登录的用户信息
+      setInitialState({
+        ...initialState,
+        currentUser: res?.data,
+      });
+      setRedirected(true); // 设置重定向状态为 true
+      return;
+    } catch (error: any) {
+      const defaultLoginFailureMessage = `登录失败${error.message}, 请重试！`;
       console.log(error);
       message.error(defaultLoginFailureMessage);
     }
   };
+
+  // 用户注册
+  const handleRegisterSubmit = async (values: API.UserRegisterRequest) => {
+    try {
+      // 注册
+      await userRegisterUsingPost({
+        ...values,
+      });
+      const defaultLoginSuccessMessage = '注册成功！';
+      message.success(defaultLoginSuccessMessage);
+      return;
+    } catch (error: any) {
+      const defaultLoginFailureMessage = `注册失败${error.message}, 请重试！`;
+      console.log(error);
+      message.error(defaultLoginFailureMessage);
+    }
+  };
+
+  // useEffect 监听 redirected 状态的变化
+  useEffect(() => {
+    if (redirected) {
+      const urlParams = new URL(window.location.href).searchParams;
+      history.push(urlParams.get('redirect') || '/');
+    }
+  }, [redirected]);
+
   return (
     <div className={styles.container}>
       <Helmet>
-        <title>
-          {'登录'}- {Settings.title}
-        </title>
+        <title>{}</title>
       </Helmet>
       <div
         style={{
-          flex: '1',
-          padding: '32px 0',
+          flex: '1 auto',
+          padding: '0',
         }}
       >
-        <LoginForm
-          contentStyle={{
-            minWidth: 280,
-            maxWidth: '75vw',
+        {/*用户登录的表单*/}
+        <LoginFormPage
+          submitter={{
+            searchConfig: {
+              submitText: type === 'login' ? '登录' : '注册',
+          }}}
+          backgroundImageUrl={BACKGROUND_IMAGE}
+          containerStyle={{
+            backdropFilter: 'blur(4px)',
           }}
           logo={<img alt="logo" src="/logo.svg" />}
           title={STEPHEN_TITLE}
@@ -113,71 +116,32 @@ const Login: React.FC = () => {
             autoLogin: true,
           }}
           onFinish={async (values) => {
-            await handleSubmit(values as API.UserLoginRequest);
+            if (type === 'login') {
+              await handleLoginSubmit(values as API.UserLoginRequest);
+            } else if (type === 'register') {
+              await handleRegisterSubmit(values as API.UserRegisterRequest);
+            }
           }}
         >
           <Tabs
-            activeKey={type}
-            onChange={setType}
             centered
+            activeKey={type}
+            onChange={(activeKey) => setType(activeKey)}
             items={[
-              {
-                key: 'account',
-                label: '账户密码登录',
-              },
+              { label: '账号密码登录', key: 'login' },
+              { label: '注册新用户', key: 'register' },
             ]}
-          />
-
-          {status === 'error' && <LoginMessage content={'错误的用户名和密码'} />}
-          {type === 'account' && (
-            <>
-              <ProFormText
-                name="userAccount"
-                fieldProps={{
-                  size: 'large',
-                  prefix: <UserOutlined />,
-                }}
-                placeholder={'请输入账号'}
-                rules={[
-                  {
-                    required: true,
-                    message: '账号是必填项！',
-                  },
-                ]}
-              />
-              <ProFormText.Password
-                name="userPassword"
-                fieldProps={{
-                  size: 'large',
-                  prefix: <LockOutlined />,
-                }}
-                placeholder={'请输入密码'}
-                rules={[
-                  {
-                    required: true,
-                    message: '密码是必填项！',
-                  },
-                ]}
-              />
-            </>
-          )}
+          ></Tabs>
+          {/*用户选择账号密码登录*/}
+          {type === 'login' && <LoginPage />}
+          {type === 'register' && <RegisterPage />}
+          {/*给输入框和登录按钮中一个边距*/}
           <div
             style={{
-              marginBottom: 24,
+              marginBottom: 36,
             }}
-          >
-            <ProFormCheckbox noStyle name="autoLogin">
-              自动登录
-            </ProFormCheckbox>
-            <a
-              style={{
-                float: 'right',
-              }}
-            >
-              忘记密码 ?
-            </a>
-          </div>
-        </LoginForm>
+          ></div>
+        </LoginFormPage>
       </div>
       <Footer />
     </div>
