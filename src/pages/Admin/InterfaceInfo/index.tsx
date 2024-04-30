@@ -13,6 +13,8 @@ import UpdateModal from './components/UpdateModal';
 import {
   deleteInterfaceInfoUsingPost,
   listInterfaceInfoByPageUsingPost,
+  offlineInterfaceInfoUsingPost,
+  onlineInterfaceInfoUsingPost,
 } from '@/services/StephenAPI-backend/interfaceInfoController';
 import CreateModal from '@/pages/Admin/InterfaceInfo/components/CreateModal';
 
@@ -43,6 +45,52 @@ const TableList: React.FC = () => {
     } catch (error: any) {
       hide();
       message.error('删除失败，请重新尝试', error.message);
+      return false;
+    }
+  };
+
+  /**
+   * 发布上线
+   *
+   * @param record
+   */
+  const handleOnline = async (record: API.IdRequest) => {
+    const hide = message.loading('正在发布上线');
+    if (!record) return true;
+    try {
+      await onlineInterfaceInfoUsingPost({
+        id: record.id,
+      });
+      hide();
+      message.success('发布成功');
+      actionRef?.current?.reload();
+      return true;
+    } catch (error: any) {
+      hide();
+      message.error('发布失败，请重新尝试', error.message);
+      return false;
+    }
+  };
+
+  /**
+   * 下线
+   *
+   * @param record
+   */
+  const handleOffline = async (record: API.IdRequest) => {
+    const hide = message.loading('正在下线接口');
+    if (!record) return true;
+    try {
+      await offlineInterfaceInfoUsingPost({
+        id: record.id,
+      });
+      hide();
+      message.success('下线成功');
+      actionRef?.current?.reload();
+      return true;
+    } catch (error: any) {
+      hide();
+      message.error('下线失败，请重新尝试', error.message);
       return false;
     }
   };
@@ -119,9 +167,10 @@ const TableList: React.FC = () => {
         },
         1: {
           text: '运行中',
-          status: 'Success'
+          status: 'Success',
         },
       },
+      hideInForm: true,
     },
     {
       title: '创建时间',
@@ -175,8 +224,36 @@ const TableList: React.FC = () => {
               删除
             </Typography.Link>
           </Popconfirm>
+
+          {/*上线*/}
+          {record.status === 0 && (
+            <Typography.Link
+              key="online"
+              onClick={async () => {
+                await handleOnline(record);
+                setCurrentRow(record);
+                actionRef.current?.reload();
+              }}
+            >
+              上线
+            </Typography.Link>
+          )}
+          {/*下线*/}
+          {record.status === 1 && (
+            <Typography.Link
+              key={'offline'}
+              type={'danger'}
+              onClick={async () => {
+                await handleOffline(record);
+                setCurrentRow(record);
+                actionRef.current?.reload();
+              }}
+            >
+              下线
+            </Typography.Link>
+          )}
         </Space>
-      )
+      ),
     },
   ];
   return (
