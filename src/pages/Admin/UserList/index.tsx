@@ -4,8 +4,8 @@ import '@umijs/max';
 import {Button, message, Popconfirm, Space, Typography} from 'antd';
 import React, {useRef, useState} from 'react';
 import UpdateModal from './components/UpdateModal';
-import CreateModal from '@/pages/Admin/UserInfo/components/CreateModal';
 import {deleteUserUsingPost, listUserByPageUsingPost} from '@/services/StephenAPI-backend/userController';
+import CreateModal from '@/pages/Admin/UserList/components/CreateModal';
 
 /**
  * 删除节点
@@ -75,6 +75,16 @@ const UserAdminPage: React.FC = () => {
       title: '简介',
       dataIndex: 'userProfile',
       valueType: 'textarea',
+    },
+    {
+      title: '邮箱',
+      dataIndex: 'userEmail',
+      valueType: 'text',
+    },
+    {
+      title: '电话',
+      dataIndex: 'userPhone',
+      valueType: 'text',
     },
     {
       title: '权限',

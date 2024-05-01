@@ -46,9 +46,7 @@ const Login: React.FC = () => {
       const res = await userLoginUsingPost({
         ...values,
       });
-
-      const defaultLoginSuccessMessage = '登录成功！';
-      message.success(defaultLoginSuccessMessage);
+      message.success('登录成功！');
       // 保存已登录的用户信息
       setInitialState({
         ...initialState,
@@ -57,9 +55,7 @@ const Login: React.FC = () => {
       setRedirected(true); // 设置重定向状态为 true
       return;
     } catch (error: any) {
-      const defaultLoginFailureMessage = `登录失败${error.message}, 请重试！`;
-      console.log(error);
-      message.error(defaultLoginFailureMessage);
+      message.error( `登录失败${error.message}, 请重试！`);
     }
   };
 
@@ -70,13 +66,10 @@ const Login: React.FC = () => {
       await userRegisterUsingPost({
         ...values,
       });
-      const defaultLoginSuccessMessage = '注册成功！';
-      message.success(defaultLoginSuccessMessage);
+      message.success('注册成功！');
       return;
     } catch (error: any) {
-      const defaultLoginFailureMessage = `注册失败${error.message}, 请重试！`;
-      console.log(error);
-      message.error(defaultLoginFailureMessage);
+      message.error(`注册失败${error.message}, 请重试！`);
     }
   };
 

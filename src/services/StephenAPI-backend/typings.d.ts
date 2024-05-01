@@ -147,7 +147,9 @@ declare namespace API {
     id?: number;
     updateTime?: string;
     userAvatar?: string;
+    userEmail?: string;
     userName?: string;
+    userPhone?: string;
     userProfile?: string;
     userRole?: string;
   };
@@ -337,16 +339,20 @@ declare namespace API {
   };
 
   type User = {
+    accessKey?: string;
     createTime?: string;
     id?: number;
     isDelete?: number;
     mpOpenId?: string;
+    secretKey?: string;
     unionId?: string;
     updateTime?: string;
     userAccount?: string;
     userAvatar?: string;
+    userEmail?: string;
     userName?: string;
     userPassword?: string;
+    userPhone?: string;
     userProfile?: string;
     userRole?: string;
   };
@@ -354,7 +360,9 @@ declare namespace API {
   type UserAddRequest = {
     userAccount?: string;
     userAvatar?: string;
+    userEmail?: string;
     userName?: string;
+    userPhone?: string;
     userProfile?: string;
     userRole?: string;
   };
@@ -372,7 +380,9 @@ declare namespace API {
     sortField?: string;
     sortOrder?: string;
     unionId?: string;
+    userEmail?: string;
     userName?: string;
+    userPhone?: string;
     userProfile?: string;
     userRole?: string;
   };
@@ -385,14 +395,18 @@ declare namespace API {
 
   type UserUpdateMyRequest = {
     userAvatar?: string;
+    userEmail?: string;
     userName?: string;
+    userPhone?: string;
     userProfile?: string;
   };
 
   type UserUpdateRequest = {
     id?: number;
     userAvatar?: string;
+    userEmail?: string;
     userName?: string;
+    userPhone?: string;
     userProfile?: string;
     userRole?: string;
   };

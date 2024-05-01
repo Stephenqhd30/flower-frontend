@@ -16,7 +16,7 @@ import {
   offlineInterfaceInfoUsingPost,
   onlineInterfaceInfoUsingPost,
 } from '@/services/StephenAPI-backend/interfaceInfoController';
-import CreateModal from '@/pages/Admin/InterfaceInfo/components/CreateModal';
+import CreateModal from '@/pages/Admin/InterfaceList/components/CreateModal';
 
 const TableList: React.FC = () => {
   const [createModalVisible, setCreateModalVisible] = useState<boolean>(false);
@@ -38,13 +38,13 @@ const TableList: React.FC = () => {
       await deleteInterfaceInfoUsingPost({
         id: record.id,
       });
-      hide();
       message.success('删除成功');
+      hide();
       actionRef?.current?.reload();
       return true;
     } catch (error: any) {
-      hide();
       message.error('删除失败，请重新尝试', error.message);
+      hide();
       return false;
     }
   };
@@ -61,13 +61,13 @@ const TableList: React.FC = () => {
       await onlineInterfaceInfoUsingPost({
         id: record.id,
       });
-      hide();
       message.success('发布成功');
+      hide();
       actionRef?.current?.reload();
       return true;
     } catch (error: any) {
-      hide();
       message.error('发布失败，请重新尝试', error.message);
+      hide();
       return false;
     }
   };
@@ -84,13 +84,13 @@ const TableList: React.FC = () => {
       await offlineInterfaceInfoUsingPost({
         id: record.id,
       });
-      hide();
       message.success('下线成功');
+      hide();
       actionRef?.current?.reload();
       return true;
     } catch (error: any) {
-      hide();
       message.error('下线失败，请重新尝试', error.message);
+      hide();
       return false;
     }
   };
