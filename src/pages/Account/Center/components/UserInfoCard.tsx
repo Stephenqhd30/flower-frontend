@@ -11,7 +11,7 @@ import useStyles from '@/pages/Account/Center/center.style';
  * @param props
  * @constructor
  */
-const UserBaseInfo: React.FC<API.User> = () => {
+const UserInfoCard: React.FC<API.User> = () => {
   const { styles } = useStyles();
   const { initialState } = useModel('@@initialState');
   const currentUser = initialState?.currentUser;
@@ -151,4 +151,4 @@ const UserBaseInfo: React.FC<API.User> = () => {
     </Space>
   );
 };
-export default UserBaseInfo;
+export default UserInfoCard;

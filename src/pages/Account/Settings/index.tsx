@@ -1,9 +1,9 @@
 import { GridContent, PageContainer } from '@ant-design/pro-components';
 import { Menu } from 'antd';
 import React, { useLayoutEffect, useRef, useState } from 'react';
-import BaseView from './components/base';
-import BindingView from './components/binding';
-import SecurityView from './components/security';
+import BaseView from './components/Base';
+import BindingView from './components/Binging';
+import SecurityView from './components/Security';
 import useStyles from '@/pages/Account/Settings/settings.style';
 import {ACCOUNT_TITLE} from '@/constants';
 

@@ -48,7 +48,6 @@ const InterfaceInfo: React.FC = () => {
           <Descriptions.Item label="创建时间">{data?.createTime} </Descriptions.Item>
           <Descriptions.Item label="更新时间">{data?.updateTime} </Descriptions.Item>
         </Descriptions>
-        ;
       </Card>
     </PageContainer>
   );
