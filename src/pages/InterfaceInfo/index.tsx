@@ -1,12 +1,16 @@
-import {PageContainer, ProCard, ProForm, ProFormText, ProFormTextArea} from '@ant-design/pro-components';
+import { PageContainer, ProCard, ProForm, ProFormTextArea } from '@ant-design/pro-components';
 import { Descriptions, message } from 'antd';
 import React, { useEffect, useState } from 'react';
-import { getInterfaceInfoVoByIdUsingGet } from '@/services/StephenAPI-backend/interfaceInfoController';
+import {
+  getInterfaceInfoVoByIdUsingGet, invokeInterfaceInfoUsingPost,
+} from '@/services/StephenAPI-backend/interfaceInfoController';
 import { useParams } from '@@/exports';
 
 const InterfaceInfo: React.FC = () => {
   const [loading, setLoading] = useState(false);
+  const [invokeLoading, setInvokeLoading] = useState(false);
   const [data, setData] = useState<API.InterfaceInfo>();
+  const [invokeRes, setInvokeRes] = useState<any>()
   const params = useParams();
 
   const loadData = async () => {
@@ -29,16 +33,33 @@ const InterfaceInfo: React.FC = () => {
     setLoading(false);
   };
 
-  const onFinish = () => {
-    setLoading(true);
-  }
+  const onFinish = async (values: any) => {
+    console.log(values)
+    if (!params.id) {
+      message.error('接口不存在');
+      return;
+    }
+    setInvokeLoading(true);
+    try {
+      const res = await invokeInterfaceInfoUsingPost({
+        ...values,
+        id: params.id,
+      });
+      console.log(res?.data)
+      setInvokeRes(res?.data);
+      message.success('请求成功');
+    } catch (error: any) {
+      message.error('请求失败' + error.message);
+    }
+    setInvokeLoading(false);
+  };
 
   useEffect(() => {
     loadData();
   }, []);
 
   return (
-    <PageContainer loading={loading} >
+    <PageContainer loading={loading}>
       <ProCard
         title={'接口文档信息'}
         extra={new Date().toLocaleDateString()}
@@ -60,22 +81,25 @@ const InterfaceInfo: React.FC = () => {
             <Descriptions.Item label="更新时间">{data?.updateTime} </Descriptions.Item>
           </Descriptions>
         </ProCard>
-        <ProCard title={"在线调用接口"}>
+        <ProCard title={'在线调用接口'}>
           <ProForm
-            name={"在线调用接口"}
-            onFinish={async () =>{
-              onFinish();
+            name={'在线调用接口'}
+            onFinish={async (values) => {
+              await onFinish(values);
             }}
             submitter={{
               searchConfig: {
-                submitText: "发送"
-              }
+                submitText: '发送',
+              },
             }}
           >
-            <ProFormTextArea
-              label={"请求参数"}
-            />
+            <ProFormTextArea label={'请求参数'} name="requestParams"/>
           </ProForm>
+        </ProCard>
+        <ProCard
+          loading={invokeLoading}
+        >
+          {invokeRes}
         </ProCard>
       </ProCard>
     </PageContainer>
