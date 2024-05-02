@@ -14,17 +14,39 @@ import {
   deleteInterfaceInfoUsingPost,
   listInterfaceInfoByPageUsingPost,
   offlineInterfaceInfoUsingPost,
-  onlineInterfaceInfoUsingPost,
+  onlineInterfaceInfoUsingPost, updateInterfaceInfoUsingPost
 } from '@/services/StephenAPI-backend/interfaceInfoController';
 import CreateModal from '@/pages/Admin/InterfaceList/components/CreateModal';
+import {values} from 'lodash';
 
 const TableList: React.FC = () => {
   const [createModalVisible, setCreateModalVisible] = useState<boolean>(false);
   const [updateModalVisible, setUpdateModalVisible] = useState<boolean>(false);
   const [showDetail, setShowDetail] = useState<boolean>(false);
   const actionRef = useRef<ActionType>();
-  const [currentRow, setCurrentRow] = useState<API.RuleListItem>();
+  const [currentRow, setCurrentRow] = useState<API.InterfaceInfo>();
   const [selectedRowsState, setSelectedRows] = useState<API.InterfaceInfo[]>([]);
+
+  /**
+   * 添加节点
+   * @param fields
+   */
+  const handleUpdate = async (fields: API.InterfaceInfo) => {
+    const hide = message.loading('正在更新');
+    try {
+      await updateInterfaceInfoUsingPost({
+        ...fields,
+        id: currentRow?.id,
+      });
+      hide();
+      message.success('更新成功');
+      return true;
+    } catch (error: any) {
+      hide();
+      message.error('更新失败，请重新尝试!', error.message);
+      return false;
+    }
+  };
 
   /**
    *  删除节点
@@ -67,7 +89,7 @@ const TableList: React.FC = () => {
       return true;
     } catch (error: any) {
       message.error('发布失败，请重新尝试', error.message);
-      hide();
+      hide()
       return false;
     }
   };
@@ -103,8 +125,7 @@ const TableList: React.FC = () => {
     {
       title: 'id',
       dataIndex: 'id',
-      valueType: 'text',
-      hideInForm: true,
+      valueType: 'index',
     },
     {
       title: '接口名称',
@@ -150,12 +171,38 @@ const TableList: React.FC = () => {
     {
       title: '请求头',
       dataIndex: 'requestHeader',
-      valueType: 'textarea',
+      valueType: 'jsonCode',
+      formItemProps: {
+        rules: [
+          {
+            required: true,
+          },
+        ],
+      },
     },
     {
       title: '响应头',
       dataIndex: 'responseHeader',
-      valueType: 'textarea',
+      valueType: 'jsonCode',
+      formItemProps: {
+        rules: [
+          {
+            required: true,
+          },
+        ],
+      },
+    },
+    {
+      title: '请求参数',
+      dataIndex: 'requestParams',
+      valueType: 'jsonCode',
+      formItemProps: {
+        rules: [
+          {
+            required: true,
+          },
+        ],
+      },
     },
     {
       title: '状态',
@@ -342,16 +389,13 @@ const TableList: React.FC = () => {
       {/*更新模态框*/}
       <UpdateModal
         columns={columns}
-        onSubmit={async () => {
+        onSubmit={async (values) => {
+          await handleUpdate(values)
           setUpdateModalVisible(false);
-          setCurrentRow(undefined);
           actionRef?.current?.reload();
         }}
         onCancel={() => {
           setUpdateModalVisible(false);
-          if (!showDetail) {
-            setCurrentRow(undefined);
-          }
         }}
         visible={updateModalVisible}
         values={currentRow || {}}

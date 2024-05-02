@@ -124,7 +124,7 @@ const Login: React.FC = () => {
               { label: '账号密码登录', key: 'login' },
               { label: '注册新用户', key: 'register' },
             ]}
-          ></Tabs>
+          />
           {/*用户选择账号密码登录*/}
           {type === 'login' && <LoginPage />}
           {type === 'register' && <RegisterPage />}

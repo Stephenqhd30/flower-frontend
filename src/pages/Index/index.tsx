@@ -1,5 +1,5 @@
-import { PageContainer } from '@ant-design/pro-components';
-import {Avatar, List, message, Space, Typography} from 'antd';
+import {PageContainer, ProList} from '@ant-design/pro-components';
+import { Avatar, List, message, Space, Tag, Typography } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { listInterfaceInfoByPageUsingPost } from '@/services/StephenAPI-backend/interfaceInfoController';
 
@@ -30,19 +30,21 @@ const Index: React.FC = () => {
 
   return (
     <PageContainer title={'花海API接口开放平台'}>
-      <List
-        itemLayout="horizontal"
+      <ProList<API.InterfaceInfo>
         loading={loading}
         size="large"
+        rowKey={"id"}
+        headerTitle="接口信息列表"
+        dataSource={list}
+        showActions="hover"
         pagination={{
           pageSize: 5,
           total: total,
           onChange: async (page, pageSize) => {
             await loadData(page, pageSize);
           },
-          align: "center",
+          align: 'center',
         }}
-        dataSource={list}
         renderItem={(item, index) => {
           const apiLink = `/interfaceInfo/${item.id}`;
           return (
@@ -70,7 +72,6 @@ const Index: React.FC = () => {
           )
         }}
       />
-
     </PageContainer>
   );
 };
