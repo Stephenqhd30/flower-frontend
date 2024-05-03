@@ -34,7 +34,6 @@ const InterfaceInfo: React.FC = () => {
   };
 
   const onFinish = async (values: any) => {
-    console.log(values)
     if (!params.id) {
       message.error('接口不存在');
       return;

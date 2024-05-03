@@ -1,5 +1,5 @@
 import {PageContainer, ProList} from '@ant-design/pro-components';
-import { Avatar, List, message, Space, Tag, Typography } from 'antd';
+import { message, Space, Tag, Typography } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { listInterfaceInfoByPageUsingPost } from '@/services/StephenAPI-backend/interfaceInfoController';
 
@@ -45,31 +45,58 @@ const Index: React.FC = () => {
           },
           align: 'center',
         }}
-        renderItem={(item, index) => {
-          const apiLink = `/interfaceInfo/${item.id}`;
-          return (
-            <>
-              <List.Item
-                key={item.id}
-                extra={
-                  <Space size={"middle"}>
-                    <Typography.Link
-                      href={apiLink}
-                      key={"details"}
-                    >
-                      查看详细
-                    </Typography.Link>
-                  </Space>
-                }
-              >
-                <List.Item.Meta
-                  avatar={<Avatar src={`https://api.dicebear.com/7.x/miniavs/svg?seed=${index}`} />}
-                  title={<a href={apiLink}>{item.name}</a>}
-                  description={item.description}
-                />
-              </List.Item>
-            </>
-          )
+        metas={{
+          title: {
+            title: "接口名称",
+            dataIndex: 'name',
+            valueType: "text",
+            render: (_, record: API.InterfaceInfo) => {
+              const apiLink = `/interfaceInfo/${record.id}`;
+
+              return (
+                <Typography.Link
+                  key={record.id}
+                  href={apiLink}
+                >
+                  {record.name}
+                </Typography.Link>
+              )
+            }
+          },
+          description: {
+            title: "接口描述",
+            dataIndex: 'description',
+            valueType: "textarea",
+          },
+          subTitle: {
+            title: "请求方式",
+            dataIndex: "method",
+            valueType: "text",
+            render: (_, record) => {
+              return (
+                <Space size={0}>
+                  <Tag color="blue">{record.method}</Tag>
+                  <Tag color="#5BD8A6">{record.status === 0 ? "关闭" : "运行中"}</Tag>
+                </Space>
+              );
+            },
+          },
+          actions: {
+            render: (_, record) => {
+              const apiLink = `/interfaceInfo/${record.id}`;
+
+              return (
+                <Space size={"middle"}>
+                  <Typography.Link
+                    href={apiLink}
+                    key={"details"}
+                  >
+                    查看详细
+                  </Typography.Link>
+                </Space>
+              )
+            },
+          },
         }}
       />
     </PageContainer>
