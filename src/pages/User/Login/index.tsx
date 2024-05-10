@@ -47,6 +47,8 @@ const Login: React.FC = () => {
         ...values,
       });
       message.success('登录成功！');
+      // @ts-ignore
+      localStorage.setItem("token", res?.data?.token)
       // 保存已登录的用户信息
       setInitialState({
         ...initialState,
