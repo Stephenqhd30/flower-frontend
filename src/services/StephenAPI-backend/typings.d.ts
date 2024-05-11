@@ -11,6 +11,12 @@ declare namespace API {
     message?: string;
   };
 
+  type BaseResponseListInterfaceInfoVO_ = {
+    code?: number;
+    data?: InterfaceInfoVO[];
+    message?: string;
+  };
+
   type BaseResponseLoginUserVO_ = {
     code?: number;
     data?: LoginUserVO;
@@ -32,12 +38,6 @@ declare namespace API {
   type BaseResponsePageInterfaceInfo_ = {
     code?: number;
     data?: PageInterfaceInfo_;
-    message?: string;
-  };
-
-  type BaseResponsePagePost_ = {
-    code?: number;
-    data?: PagePost_;
     message?: string;
   };
 
@@ -170,6 +170,23 @@ declare namespace API {
     url?: string;
   };
 
+  type InterfaceInfoVO = {
+    createTime?: string;
+    description?: string;
+    id?: number;
+    isDelete?: number;
+    method?: string;
+    name?: string;
+    requestHeader?: string;
+    requestParams?: string;
+    responseHeader?: string;
+    status?: number;
+    totalNum?: number;
+    updateTime?: string;
+    url?: string;
+    userId?: number;
+  };
+
   type LoginUserVO = {
     createTime?: string;
     id?: number;
@@ -279,19 +296,6 @@ declare namespace API {
     total?: number;
   };
 
-  type PagePost_ = {
-    countId?: string;
-    current?: number;
-    maxLimit?: number;
-    optimizeCountSql?: boolean;
-    orders?: OrderItem[];
-    pages?: number;
-    records?: Post[];
-    searchCount?: boolean;
-    size?: number;
-    total?: number;
-  };
-
   type PageUser_ = {
     countId?: string;
     current?: number;
@@ -329,55 +333,6 @@ declare namespace API {
     searchCount?: boolean;
     size?: number;
     total?: number;
-  };
-
-  type Post = {
-    content?: string;
-    createTime?: string;
-    favourNum?: number;
-    id?: number;
-    isDelete?: number;
-    tags?: string;
-    thumbNum?: number;
-    title?: string;
-    updateTime?: string;
-    userId?: number;
-  };
-
-  type PostAddRequest = {
-    content?: string;
-    tags?: string[];
-    title?: string;
-  };
-
-  type PostEditRequest = {
-    content?: string;
-    id?: number;
-    tags?: string[];
-    title?: string;
-  };
-
-  type PostQueryRequest = {
-    content?: string;
-    current?: number;
-    favourUserId?: number;
-    id?: number;
-    notId?: number;
-    orTags?: string[];
-    pageSize?: number;
-    searchText?: string;
-    sortField?: string;
-    sortOrder?: string;
-    tags?: string[];
-    title?: string;
-    userId?: number;
-  };
-
-  type PostUpdateRequest = {
-    content?: string;
-    id?: number;
-    tags?: string[];
-    title?: string;
   };
 
   type uploadFileUsingPOSTParams = {
